@@ -6,17 +6,21 @@ import numpy as np
 def main():
     #loss: 15.552 , acc: 0.0967
 
-    manager = DataManager()
+	manager = DataManager()
 	
-    manager.preprocessData()
+	manager.preprocessData()
 	
-    network = NeuralNetwork()
+	network = NeuralNetwork()
 	
-    network.createModel()
+	network.createModel()
 	
-    network.train(manager.datagen,manager.train_data,manager.train_labels,10)
+	network.train(manager.datagen,manager.train_data,manager.train_labels,10)
 	
-    results = network.evaluate(manager.eval_data,manager.eval_labels)
-
+	network.saveModel()
+	
+	results = network.evaluate(manager.eval_data,manager.eval_labels)
+	
+	
+	
 if __name__ == "__main__":
     main()
