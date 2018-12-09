@@ -12,114 +12,116 @@ from keras.callbacks import ReduceLROnPlateau
 
 class NeuralNetwork(object):
 
-    def __init__(self):
-        self.model = None
+	def __init__(self):
+		self.model = None
     
 
-    def createModel(self):	#creation des layers
+	def createModel(self):	#creation des layers
 
-       conv1 = keras.layers.Conv2D(filters= 32,kernel_size = 5,strides = 1, padding = "same", data_format = 'channels_last',activation='relu', input_shape= (32, 32,3))
+		conv1 = keras.layers.Conv2D(filters= 32,kernel_size = 5,strides = 1, padding = "same", data_format = 'channels_last',activation='relu', input_shape= (32, 32,3))
 
-       pool1 = keras.layers.MaxPooling2D(pool_size=2,strides = 2,data_format = "channels_last")
-       pool1Activation = keras.layers.Activation('relu')
+		pool1 = keras.layers.MaxPooling2D(pool_size=2,strides = 2,data_format = "channels_last")
+		pool1Activation = keras.layers.Activation('relu')
 
-       drop1 = keras.layers.Dropout(0.25)
+		drop1 = keras.layers.Dropout(0.25)
        
-       rnorm1 = keras.layers.BatchNormalization(axis = 3)
+		rnorm1 = keras.layers.BatchNormalization(axis = 3)
  
-       conv2  = keras.layers.Conv2D(filters= 32,kernel_size= 3,strides = 1,padding = "same", data_format = "channels_last",activation='relu');
+		conv2  = keras.layers.Conv2D(filters= 32,kernel_size= 3,strides = 1,padding = "same", data_format = "channels_last",activation='relu');
        
-       pool2  = keras.layers.AveragePooling2D(pool_size = 2,strides = 2,data_format = "channels_last")
+		pool2  = keras.layers.AveragePooling2D(pool_size = 2,strides = 2,data_format = "channels_last")
 	   
-       rnorm2 = keras.layers.BatchNormalization(axis=3)
+		rnorm2 = keras.layers.BatchNormalization(axis=3)
 
-       conv3  = keras.layers.Conv2D(filters= 64,kernel_size= 3,strides = 1,padding = "same", data_format = "channels_last",activation='relu');
+		conv3  = keras.layers.Conv2D(filters= 64,kernel_size= 3,strides = 1,padding = "same", data_format = "channels_last",activation='relu');
        
-       pool3  = keras.layers.AveragePooling2D(pool_size = (3,3),strides = 2,data_format = "channels_last")
+		pool3  = keras.layers.AveragePooling2D(pool_size = (3,3),strides = 2,data_format = "channels_last")
 
-       drop2 = keras.layers.Dropout(0.5)
+		drop2 = keras.layers.Dropout(0.5)
 
-       flattening = keras.layers.Flatten(data_format = "channels_last");
+		flattening = keras.layers.Flatten(data_format = "channels_last");
 
-       drop3 = keras.layers.Dropout(0.25)
+		drop3 = keras.layers.Dropout(0.25)
 
-       fc10  = keras.layers.Dense(10,activation = 'softmax');
+		fc10  = keras.layers.Dense(10,activation = 'softmax');
 
-       softmax = keras.layers.Softmax()
+		softmax = keras.layers.Softmax()
 	   
-       self.model = keras.Sequential([
-                conv1,
-                pool1,
-                drop1,
-                #pool1Activation,
-                rnorm1,
-                conv2,
-                pool2,
-                rnorm2,
-                conv3,
-                pool3,
-                drop2,
-                flattening,
-                drop3,
-                fc10,
+		self.model = keras.Sequential([
+				conv1,
+				pool1,
+				drop1,
+				#pool1Activation,
+				rnorm1,
+				conv2,
+				pool2,
+				rnorm2,
+				conv3,
+				pool3,
+				drop2,
+				flattening,
+				drop3,
+				fc10,
 				#softmax,
-       ])
+		])
 
-    def train(self, datagen ,train_data, train_labels, epochss):
+	def train(self, datagen ,train_data, train_labels, epochss):
 		"""Train the keras model
-        
-        Arguments:
-            train_data {np.array} -- The training image data
-            train_labels {np.array} -- The training labels
-            epochs {int} -- The number of epochs to train for
-        """
 
-        learning_rate_reduction = ReduceLROnPlateau(monitor='val_acc', patience=3, verbose=1, factor=0.5, min_lr=0.00001)
+		Arguments:
+			train_data {np.array} -- The training image data
+			train_labels {np.array} -- The training labels
+			epochs {int} -- The number of epochs to train for
+		"""
+
+		learning_rate_reduction = ReduceLROnPlateau(monitor='val_acc', patience=3, verbose=1, factor=0.5, min_lr=0.00001)
 		
-        self.model.compile(optimizer=keras.optimizers.Adam(lr = 1), loss='sparse_categorical_crossentropy', metrics=['accuracy'])
-			  
-        self.model.fit_generator(datagen.flow(train_data, train_labels, batch_size=32),
-                                 steps_per_epoch=len(train_data) / 32,
-                                 epochs=epochss,
-                                 validation_data=(train_data,train_labels)
-                                 )
-        pass
-
-    def evaluate(self, eval_data, eval_labels):
-        """Calculate the accuracy of the model
-        
-        Arguments:
-            eval_data {np.array} -- The evaluation images
-            eval_labels {np.array} -- The labels for the evaluation images
-        """
+		self.model.compile(optimizer=keras.optimizers.Adam(lr = 1), loss='sparse_categorical_crossentropy', metrics=['accuracy'])
 		
-        return self.model.evaluate(eval_data, eval_labels, batch_size=32)
-        pass
+		self.model.fit_generator(datagen.flow(train_data, train_labels, batch_size=32),
+								steps_per_epoch=len(train_data) / 32,
+								epochs=epochss,
+								validation_data=(train_data,train_labels)
+								)
+		pass
 
-    def test(self, test_data):	
-        """Make predictions for a list of images and display the results
+	def evaluate(self, eval_data, eval_labels):
+		"""Calculate the accuracy of the model
         
-        Arguments:
-            test_data {np.array} -- The test images
-        """
+		Arguments:
+			eval_data {np.array} -- The evaluation images
+			eval_labels {np.array} -- The labels for the evaluation images
+		"""
 		
-        predictions = self.model.predict(test_data)
-        return predictions
-        pass
+		return self.model.evaluate(eval_data, eval_labels, batch_size=32)
+		pass
 
-    ## Exercise 7 Save and load a model using the keras.models API
-    def saveModel(self, saveFile="model.h5"):
-        """Save a model using the keras.models API
+	def test(self, test_data):	
+		"""Make predictions for a list of images and display the results
         
-        Keyword Arguments:
-            saveFile {str} -- The name of the model file (default: {"model.h5"})
-        """
-        pass
+		Arguments:
+			test_data {np.array} -- The test images
+		"""
+		
+		predictions = self.model.predict(test_data)
+		return predictions
+		pass
 
-    def loadModel(self, saveFile="model.h5"):
-        """Load a model using the keras.models API
+	## Exercise 7 Save and load a model using the keras.models API
+	def saveModel(self, saveFile="model.h5"):
+		"""Save a model using the keras.models API
         
-        Keyword Arguments:
-            saveFile {str} -- The name of the model file (default: {"model.h5"})
-        """
-        pass
+		Keyword Arguments:
+			saveFile {str} -- The name of the model file (default: {"model.h5"})
+		"""
+		self.model.save(saveFile)
+		pass
+
+	def loadModel(self, saveFile="model.h5"):
+		"""Load a model using the keras.models API
+ 
+		Keyword Arguments:
+			saveFile {str} -- The name of the model file (default: {"model.h5"})
+		"""
+		self.model = load_model(saveFile)
+		pass
